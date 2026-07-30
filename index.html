@@ -1,830 +1,260 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>해양사고 현황 대시보드</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>정책 공지사항</title>
   <style>
     :root {
-      --bg-top: #0a2239;
-      --bg-mid: #123a57;
-      --bg-bottom: #f4efe6;
-      --panel: rgba(255, 255, 255, 0.9);
-      --panel-strong: #ffffff;
-      --line: rgba(18, 58, 87, 0.14);
-      --text: #102133;
-      --muted: #567081;
-      --accent: #0f9d8a;
-      --accent-deep: #0d6d72;
-      --accent-soft: #d8f4ef;
-      --warm: #f2b880;
-      --highlight: #fff1a8;
-      --shadow: 0 22px 50px rgba(8, 29, 46, 0.18);
-      --radius-xl: 28px;
-      --radius-lg: 20px;
-      --radius-md: 14px;
+      --navy: #173a31;
+      --green: #28745d;
+      --mint: #e8f2ed;
+      --cream: #f7f8f4;
+      --line: #dce4df;
+      --text: #1d2925;
+      --muted: #67736e;
+      --white: #fff;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      min-height: 100vh;
-      font-family: "Segoe UI Variable", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(242, 184, 128, 0.24), transparent 24%),
-        radial-gradient(circle at top right, rgba(15, 157, 138, 0.16), transparent 20%),
-        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 28%, var(--bg-bottom) 28%, #fbf8f3 100%);
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      background-image:
-        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
-      background-size: 28px 28px;
-      opacity: 0.6;
-    }
-
-    .shell {
-      position: relative;
-      width: min(1180px, calc(100% - 32px));
-      margin: 32px auto 48px;
+      background: var(--cream);
+      font-family: Pretendard, "Noto Sans KR", "Malgun Gothic", sans-serif;
+      line-height: 1.5;
     }
 
     .hero {
-      padding: 34px 34px 30px;
-      border-radius: var(--radius-xl);
-      color: #f7fbfd;
+      padding: 56px 24px 96px;
+      color: var(--white);
       background:
-        linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02)),
-        linear-gradient(135deg, rgba(7, 36, 66, 0.96), rgba(19, 90, 101, 0.92));
-      box-shadow: var(--shadow);
-      overflow: hidden;
+        radial-gradient(circle at 86% 18%, rgba(130, 197, 168, .26), transparent 28%),
+        linear-gradient(135deg, #173a31, #245d4c);
     }
 
-    .hero::after {
-      content: "";
-      position: absolute;
-      right: -80px;
-      top: -100px;
-      width: 320px;
-      height: 320px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(242, 184, 128, 0.42), rgba(242, 184, 128, 0));
-    }
+    .hero-inner, main { max-width: 1120px; margin: 0 auto; }
 
     .eyebrow {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 7px 12px;
-      border-radius: 999px;
+      margin: 0 0 12px;
+      color: #bce0d1;
       font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #d9f7f1;
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    h1 {
-      margin: 18px 0 12px;
-      font-family: Georgia, "Nanum Myeongjo", serif;
-      font-size: clamp(2rem, 3vw, 3.35rem);
-      line-height: 1.08;
-      letter-spacing: -0.02em;
-    }
-
-    .hero p {
-      margin: 0;
-      max-width: 760px;
-      font-size: 1.03rem;
-      line-height: 1.75;
-      color: rgba(247, 251, 253, 0.88);
-    }
-
-    .main-grid {
-      display: grid;
-      grid-template-columns: 320px minmax(0, 1fr);
-      gap: 22px;
-      margin-top: 22px;
-      align-items: start;
-    }
-
-    .panel {
-      background: var(--panel);
-      border: 1px solid rgba(255, 255, 255, 0.7);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-
-    .control-panel {
-      padding: 24px;
-      position: sticky;
-      top: 18px;
-    }
-
-    .panel-title {
-      margin: 0 0 8px;
-      font-family: Georgia, "Nanum Myeongjo", serif;
-      font-size: 1.35rem;
-    }
-
-    .panel-copy {
-      margin: 0 0 18px;
-      color: var(--muted);
-      font-size: 0.95rem;
-      line-height: 1.65;
-    }
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-
-    .field select,
-    .field input {
-      width: 100%;
-      padding: 14px 15px;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-md);
-      font-size: 1rem;
-      color: var(--text);
-      background: rgba(255, 255, 255, 0.96);
-      transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .field select:focus,
-    .field input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(15, 157, 138, 0.12);
-      transform: translateY(-1px);
-    }
-
-    .search-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-    }
-
-    .button {
-      border: 0;
-      border-radius: var(--radius-md);
-      padding: 0 18px;
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: #f7fffd;
-      cursor: pointer;
-      background: linear-gradient(135deg, var(--accent), var(--accent-deep));
-      box-shadow: 0 10px 20px rgba(13, 109, 114, 0.24);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 14px 24px rgba(13, 109, 114, 0.26);
-    }
-
-    .button:active {
-      transform: translateY(0);
-    }
-
-    .helper {
-      margin: 8px 0 0;
-      min-height: 22px;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    .helper strong {
-      color: var(--accent-deep);
-    }
-
-    .insight-list {
-      margin: 22px 0 0;
-      padding: 18px;
-      list-style: none;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(216, 244, 239, 0.85), rgba(255, 255, 255, 0.9));
-    }
-
-    .insight-list li + li {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed rgba(16, 33, 51, 0.12);
-    }
-
-    .insight-label {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .insight-value {
-      font-size: 1.2rem;
       font-weight: 800;
+      letter-spacing: .12em;
     }
 
-    .content {
-      display: grid;
-      gap: 22px;
-    }
+    .eyebrow::before { content: ""; width: 22px; height: 2px; background: #8ac5aa; }
+    h1 { margin: 0; font-size: clamp(32px, 5vw, 48px); letter-spacing: -.045em; }
+    .intro { max-width: 590px; margin: 12px 0 0; color: #d8e8e1; font-size: 16px; }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
-    }
+    main { padding: 0 24px 64px; }
 
-    .stat-card {
-      padding: 22px;
-      border-radius: 22px;
-      background: linear-gradient(180deg, var(--panel-strong), rgba(247, 251, 253, 0.92));
-      border: 1px solid rgba(16, 33, 51, 0.06);
-      box-shadow: 0 16px 28px rgba(15, 35, 49, 0.08);
-    }
-
-    .stat-label {
-      display: block;
-      margin-bottom: 14px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--muted);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .stat-value {
-      display: block;
-      font-family: Georgia, "Nanum Myeongjo", serif;
-      font-size: clamp(2rem, 3vw, 2.65rem);
-      line-height: 1;
-    }
-
-    .stat-note {
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 0.93rem;
-      line-height: 1.55;
-    }
-
-    .data-panel {
-      padding: 26px;
-    }
-
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    .section-head h2 {
-      margin: 0;
-      font-family: Georgia, "Nanum Myeongjo", serif;
-      font-size: 1.45rem;
-    }
-
-    .section-head p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .year-chip {
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 800;
-      color: var(--accent-deep);
-      background: var(--accent-soft);
-      white-space: nowrap;
-    }
-
-    .type-table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .type-table th,
-    .type-table td {
-      padding: 14px 12px;
-      border-bottom: 1px solid rgba(16, 33, 51, 0.08);
-      text-align: left;
-      vertical-align: middle;
-    }
-
-    .type-table thead th {
-      font-size: 0.88rem;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .count-cell {
-      width: 160px;
-      text-align: right;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .bar-track {
+    .search-panel {
       position: relative;
+      margin-top: -47px;
+      padding: 22px;
+      border: 1px solid rgba(23, 58, 49, .08);
+      border-radius: 18px;
+      background: var(--white);
+      box-shadow: 0 14px 38px rgba(32, 55, 47, .11);
+    }
+
+    .search-wrap { position: relative; }
+    .search-icon { position: absolute; left: 17px; top: 50%; transform: translateY(-50%); color: var(--green); }
+
+    #searchInput {
       width: 100%;
-      height: 12px;
+      height: 54px;
+      padding: 0 52px 0 48px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      outline: none;
+      color: var(--text);
+      background: #fbfcfa;
+      font: inherit;
+      font-size: 16px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    #searchInput:focus { border-color: var(--green); box-shadow: 0 0 0 4px rgba(40, 116, 93, .12); }
+    #clearSearch { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); border: 0; background: transparent; color: var(--muted); font-size: 22px; cursor: pointer; }
+    #clearSearch[hidden] { display: none; }
+
+    .filters { display: flex; gap: 8px; margin-top: 15px; overflow-x: auto; scrollbar-width: thin; }
+    .filter-btn {
+      flex: 0 0 auto;
+      padding: 9px 14px;
+      border: 1px solid var(--line);
       border-radius: 999px;
+      background: var(--white);
+      color: #50605a;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .filter-btn:hover { border-color: #92b5a7; }
+    .filter-btn.active { border-color: var(--green); background: var(--green); color: var(--white); }
+
+    .result-bar { display: flex; align-items: center; justify-content: space-between; margin: 38px 2px 17px; }
+    #resultCount { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -.02em; }
+    #resultCount strong { color: var(--green); }
+    .hint { color: var(--muted); font-size: 13px; }
+
+    .card-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      position: relative;
+      min-width: 0;
+      padding: 23px;
       overflow: hidden;
-      background: rgba(86, 112, 129, 0.14);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--white);
+      box-shadow: 0 3px 12px rgba(31, 52, 45, .04);
+      transition: transform .2s, box-shadow .2s, border-color .2s;
     }
 
-    .bar-fill {
-      position: absolute;
-      inset: 0 auto 0 0;
-      border-radius: inherit;
-      background: linear-gradient(90deg, var(--accent), var(--warm));
-    }
+    .card::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: #72aa92; }
+    .card:hover { transform: translateY(-2px); border-color: #bdd2c9; box-shadow: 0 10px 24px rgba(31, 52, 45, .09); }
+    .category { display: inline-block; padding: 5px 10px; border-radius: 7px; background: var(--mint); color: var(--green); font-size: 12px; font-weight: 800; }
+    .card h2 { margin: 13px 0 22px; font-size: 20px; line-height: 1.4; letter-spacing: -.025em; }
+    .meta { display: grid; grid-template-columns: 58px 1fr; gap: 7px 12px; margin: 0; padding-top: 16px; border-top: 1px solid #edf1ee; font-size: 14px; }
+    .meta dt { color: var(--muted); }
+    .meta dd { min-width: 0; margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+    .meta a { color: inherit; text-decoration: none; }
+    .meta a:hover { color: var(--green); text-decoration: underline; }
 
-    .total-banner {
-      margin-top: 18px;
-      padding: 18px 20px;
-      border-radius: 18px;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      color: #f8fbfb;
-      background: linear-gradient(135deg, rgba(10, 34, 57, 0.96), rgba(15, 109, 114, 0.92));
-    }
+    .empty { grid-column: 1 / -1; padding: 60px 24px; text-align: center; border: 1px dashed #bdcbc5; border-radius: 16px; background: rgba(255,255,255,.6); }
+    .empty-symbol { display: block; margin-bottom: 10px; color: #8ba097; font-size: 32px; }
+    .empty p { margin: 0; font-weight: 800; }
+    .empty small { display: block; margin-top: 5px; color: var(--muted); }
 
-    .total-banner strong {
-      display: block;
-      font-size: 0.9rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: rgba(248, 251, 251, 0.8);
-    }
-
-    .total-banner span {
-      display: block;
-      margin-top: 6px;
-      font-family: Georgia, "Nanum Myeongjo", serif;
-      font-size: 2.05rem;
-      line-height: 1;
-    }
-
-    .overview-wrap {
-      overflow-x: auto;
-      border-radius: 18px;
-      border: 1px solid rgba(16, 33, 51, 0.08);
-    }
-
-    .overview-table {
-      width: 100%;
-      min-width: 880px;
-      border-collapse: collapse;
-      background: rgba(255, 255, 255, 0.92);
-    }
-
-    .overview-table th,
-    .overview-table td {
-      padding: 14px 16px;
-      border-bottom: 1px solid rgba(16, 33, 51, 0.08);
-      text-align: right;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .overview-table th:first-child,
-    .overview-table td:first-child {
-      text-align: left;
-      position: sticky;
-      left: 0;
-      background: inherit;
-    }
-
-    .overview-table thead th {
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      font-size: 0.88rem;
-      color: var(--muted);
-      background: #eef5f6;
-    }
-
-    .overview-table tbody tr {
-      transition: background-color 0.18s ease, transform 0.18s ease;
-    }
-
-    .overview-table tbody tr:hover {
-      background: rgba(216, 244, 239, 0.45);
-    }
-
-    .overview-table tbody tr.match-row {
-      background: linear-gradient(90deg, rgba(255, 241, 168, 0.8), rgba(242, 184, 128, 0.34));
-      box-shadow: inset 4px 0 0 #f2a93b;
-    }
-
-    .overview-table tbody tr.selected-row {
-      background: rgba(216, 244, 239, 0.52);
-    }
-
-    .footnote {
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 0.9rem;
-    }
-
-    @media (max-width: 980px) {
-      .main-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .control-panel {
-        position: static;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .shell {
-        width: min(100% - 18px, 1180px);
-        margin: 18px auto 32px;
-      }
-
-      .hero,
-      .control-panel,
-      .data-panel {
-        padding: 20px;
-      }
-
-      .section-head,
-      .total-banner {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .search-row {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 700px) {
+      .hero { padding: 42px 20px 82px; }
+      main { padding: 0 16px 44px; }
+      .search-panel { padding: 16px; border-radius: 15px; }
+      .card-grid { grid-template-columns: 1fr; }
+      .result-bar { margin-top: 30px; }
+      .hint { display: none; }
+      .card { padding: 20px; }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <header class="hero">
-      <div class="eyebrow">해양수산부 해사안전국</div>
-      <h1>해양사고 현황 대시보드</h1>
-      <p>
-        1998년부터 2012년까지의 해양사고 데이터를 바탕으로 연도별 총계와 주요 사고 유형 현황을 한눈에 확인할 수 있도록 구성한 정적 대시보드입니다.
-        연도를 선택하면 해당 연도 데이터만 집중해서 볼 수 있고, 검색창에 연도를 입력하면 전체 연도 표에서 해당 행이 강조됩니다.
-      </p>
-    </header>
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">POLICY NOTICE</p>
+      <h1>정책 공지사항</h1>
+      <p class="intro">업무에 필요한 정책 소식을 제목과 분야로 빠르게 찾아보세요.</p>
+    </div>
+  </header>
 
-    <main class="main-grid">
-      <aside class="panel control-panel">
-        <h2 class="panel-title">조회 도구</h2>
-        <p class="panel-copy">연도 선택 필터와 검색 기능을 이용해 원하는 해양사고 현황을 빠르게 찾아볼 수 있습니다.</p>
+  <main>
+    <section class="search-panel" aria-label="공지 검색 및 필터">
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <label for="searchInput" class="sr-only" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">제목 또는 분야 검색</label>
+        <input id="searchInput" type="search" placeholder="제목 또는 분야를 검색하세요" autocomplete="off">
+        <button id="clearSearch" type="button" aria-label="검색어 지우기" hidden>×</button>
+      </div>
+      <div id="filterButtons" class="filters" role="group" aria-label="분야 선택"></div>
+    </section>
 
-        <div class="field">
-          <label for="year-select">연도 선택</label>
-          <select id="year-select" aria-label="조회할 연도 선택"></select>
-        </div>
-
-        <div class="field">
-          <label for="year-search">연도 검색</label>
-          <div class="search-row">
-            <input id="year-search" type="text" inputmode="numeric" maxlength="4" placeholder="예: 2011" aria-label="강조할 연도 입력">
-            <button id="search-button" class="button" type="button">강조</button>
-          </div>
-          <p id="search-feedback" class="helper" aria-live="polite"></p>
-        </div>
-
-        <ul class="insight-list">
-          <li>
-            <span class="insight-label">데이터 기간</span>
-            <span class="insight-value" id="period-range">1998-2012</span>
-          </li>
-          <li>
-            <span class="insight-label">최다 총계 연도</span>
-            <span class="insight-value" id="peak-year">2011</span>
-          </li>
-          <li>
-            <span class="insight-label">최다 총계 건수</span>
-            <span class="insight-value" id="peak-total">946건</span>
-          </li>
-        </ul>
-      </aside>
-
-      <section class="content">
-        <div class="stats-grid">
-          <article class="panel stat-card">
-            <span class="stat-label">선택 연도 총 사고</span>
-            <span class="stat-value" id="selected-total">946</span>
-            <p class="stat-note">선택한 연도의 <strong>총계</strong> 값을 별도로 표시합니다.</p>
-          </article>
-
-          <article class="panel stat-card">
-            <span class="stat-label">가장 많은 사고 유형</span>
-            <span class="stat-value" id="dominant-type">기관손상</span>
-            <p class="stat-note" id="dominant-copy">선택 연도에서 가장 큰 사고유형 건수를 보여줍니다.</p>
-          </article>
-
-          <article class="panel stat-card">
-            <span class="stat-label">주요 비교 지표</span>
-            <span class="stat-value" id="comparison-value">208</span>
-            <p class="stat-note" id="comparison-copy">충돌과 기관손상 등 주요 항목을 비교해 읽기 쉽게 안내합니다.</p>
-          </article>
-        </div>
-
-        <section class="panel data-panel">
-          <div class="section-head">
-            <div>
-              <h2>선택 연도 사고유형별 건수</h2>
-              <p>드롭다운에서 고른 연도의 사고유형별 건수를 표와 막대로 함께 보여줍니다.</p>
-            </div>
-            <div class="year-chip" id="selected-year-chip">2011년 데이터</div>
-          </div>
-
-          <table class="type-table" aria-label="선택 연도 사고유형별 건수 표">
-            <thead>
-              <tr>
-                <th scope="col">사고유형</th>
-                <th scope="col">규모</th>
-                <th scope="col" class="count-cell">건수</th>
-              </tr>
-            </thead>
-            <tbody id="type-table-body"></tbody>
-          </table>
-
-          <div class="total-banner" aria-label="선택 연도 총계 표시">
-            <div>
-              <strong>총 사고 건수 합계</strong>
-              <span id="selected-total-banner">946건</span>
-            </div>
-            <p id="selected-summary-copy" style="margin:0; max-width: 420px; color: rgba(248, 251, 251, 0.88); line-height: 1.6;">
-              2011년에는 총 946건의 해양사고가 집계되었으며, 기관손상과 충돌 비중이 높게 나타났습니다.
-            </p>
-          </div>
-        </section>
-
-        <section class="panel data-panel">
-          <div class="section-head">
-            <div>
-              <h2>연도별 전체 현황 표</h2>
-              <p>검색창에 연도를 입력하면 아래 표에서 해당 연도 행이 강조됩니다.</p>
-            </div>
-          </div>
-
-          <div class="overview-wrap">
-            <table class="overview-table" aria-label="연도별 전체 해양사고 현황 표">
-              <thead>
-                <tr>
-                  <th scope="col">연도</th>
-                  <th scope="col">총계</th>
-                  <th scope="col">충돌</th>
-                  <th scope="col">접촉</th>
-                  <th scope="col">좌초</th>
-                  <th scope="col">전복</th>
-                  <th scope="col">화재폭발</th>
-                  <th scope="col">침몰</th>
-                  <th scope="col">기관손상</th>
-                </tr>
-              </thead>
-              <tbody id="overview-body"></tbody>
-            </table>
-          </div>
-
-          <p class="footnote">참고 데이터는 `marine_accidents_1998_2012_cp949.csv`와 동일한 값을 JavaScript 배열로 하드코딩해 사용했습니다.</p>
-        </section>
-      </section>
-    </main>
-  </div>
+    <div class="result-bar" aria-live="polite">
+      <p id="resultCount">결과 <strong>10건</strong></p>
+      <span class="hint">제목 또는 분야로 검색할 수 있습니다.</span>
+    </div>
+    <section id="cardGrid" class="card-grid" aria-label="정책 공지 목록"></section>
+  </main>
 
   <script>
-    const accidentData = [
-      { year: 1998, total: 772, collision: 147, contact: 5, grounding: 77, capsize: 14, fireExplosion: 60, sinking: 84, engineDamage: 242 },
-      { year: 1999, total: 849, collision: 173, contact: 2, grounding: 68, capsize: 27, fireExplosion: 67, sinking: 90, engineDamage: 269 },
-      { year: 2000, total: 634, collision: 130, contact: 11, grounding: 58, capsize: 19, fireExplosion: 48, sinking: 63, engineDamage: 196 },
-      { year: 2001, total: 610, collision: 141, contact: 15, grounding: 60, capsize: 21, fireExplosion: 62, sinking: 72, engineDamage: 135 },
-      { year: 2002, total: 557, collision: 184, contact: 13, grounding: 58, capsize: 29, fireExplosion: 42, sinking: 55, engineDamage: 110 },
-      { year: 2003, total: 531, collision: 182, contact: 9, grounding: 65, capsize: 22, fireExplosion: 53, sinking: 50, engineDamage: 57 },
-      { year: 2004, total: 804, collision: 210, contact: 12, grounding: 75, capsize: 35, fireExplosion: 57, sinking: 69, engineDamage: 147 },
-      { year: 2005, total: 658, collision: 172, contact: 10, grounding: 46, capsize: 22, fireExplosion: 71, sinking: 45, engineDamage: 166 },
-      { year: 2006, total: 657, collision: 167, contact: 17, grounding: 66, capsize: 16, fireExplosion: 41, sinking: 25, engineDamage: 195 },
-      { year: 2007, total: 566, collision: 148, contact: 9, grounding: 39, capsize: 21, fireExplosion: 37, sinking: 19, engineDamage: 185 },
-      { year: 2008, total: 480, collision: 125, contact: 15, grounding: 32, capsize: 8, fireExplosion: 25, sinking: 18, engineDamage: 145 },
-      { year: 2009, total: 723, collision: 160, contact: 10, grounding: 43, capsize: 18, fireExplosion: 34, sinking: 22, engineDamage: 253 },
-      { year: 2010, total: 737, collision: 174, contact: 22, grounding: 64, capsize: 17, fireExplosion: 25, sinking: 22, engineDamage: 236 },
-      { year: 2011, total: 946, collision: 208, contact: 23, grounding: 64, capsize: 38, fireExplosion: 57, sinking: 27, engineDamage: 261 },
-      { year: 2012, total: 726, collision: 157, contact: 21, grounding: 53, capsize: 25, fireExplosion: 55, sinking: 26, engineDamage: 178 }
+    const policyNotices = [
+      { "id": 1, "분야": "행정혁신", "제목": "디지털혁신 우수사례 공모", "담당과": "디지털혁신과", "연락처": "044-205-1234" },
+      { "id": 2, "분야": "안전관리", "제목": "여름철 폭우 대비 안전점검", "담당과": "재난관리정책과", "연락처": "044-205-2345" },
+      { "id": 3, "분야": "민원서비스", "제목": "통합민원포털 개편 안내", "담당과": "민원혁신과", "연락처": "044-205-3456" },
+      { "id": 4, "분야": "청렴윤리", "제목": "공직자 청렴교육 정례화", "담당과": "감사담당관실", "연락처": "044-205-4567" },
+      { "id": 5, "분야": "행정혁신", "제목": "공공서비스 사용자 만족도 조사", "담당과": "정책기획관실", "연락처": "044-205-5678" },
+      { "id": 6, "분야": "교육훈련", "제목": "하반기 신규 공무원 합동연수", "담당과": "인재개발과", "연락처": "044-205-6789" },
+      { "id": 7, "분야": "국제협력", "제목": "OECD 디지털정부 워크숍", "담당과": "국제협력담당관실", "연락처": "044-205-7890" },
+      { "id": 8, "분야": "민원서비스", "제목": "모바일 신분증 발급 확대", "담당과": "디지털혁신과", "연락처": "044-205-8901" },
+      { "id": 9, "분야": "안전관리", "제목": "학교 안전점검 결과 발표", "담당과": "안전관리과", "연락처": "044-205-9012" },
+      { "id": 10, "분야": "행정혁신", "제목": "공공데이터 개방 우수기관 시상", "담당과": "데이터정책과", "연락처": "044-205-0123" }
     ];
 
-    const typeConfig = [
-      { key: "collision", label: "충돌" },
-      { key: "contact", label: "접촉" },
-      { key: "grounding", label: "좌초" },
-      { key: "capsize", label: "전복" },
-      { key: "fireExplosion", label: "화재폭발" },
-      { key: "sinking", label: "침몰" },
-      { key: "engineDamage", label: "기관손상" }
-    ];
+    const searchInput = document.querySelector("#searchInput");
+    const clearSearch = document.querySelector("#clearSearch");
+    const filterButtons = document.querySelector("#filterButtons");
+    const cardGrid = document.querySelector("#cardGrid");
+    const resultCount = document.querySelector("#resultCount");
+    let selectedCategory = "전체";
 
-    const yearSelect = document.getElementById("year-select");
-    const yearSearch = document.getElementById("year-search");
-    const searchButton = document.getElementById("search-button");
-    const searchFeedback = document.getElementById("search-feedback");
-    const typeTableBody = document.getElementById("type-table-body");
-    const overviewBody = document.getElementById("overview-body");
+    const categories = ["전체", ...new Set(policyNotices.map(item => item.분야))];
 
-    const selectedTotal = document.getElementById("selected-total");
-    const dominantType = document.getElementById("dominant-type");
-    const dominantCopy = document.getElementById("dominant-copy");
-    const comparisonValue = document.getElementById("comparison-value");
-    const comparisonCopy = document.getElementById("comparison-copy");
-    const selectedYearChip = document.getElementById("selected-year-chip");
-    const selectedTotalBanner = document.getElementById("selected-total-banner");
-    const selectedSummaryCopy = document.getElementById("selected-summary-copy");
-    const periodRange = document.getElementById("period-range");
-    const peakYear = document.getElementById("peak-year");
-    const peakTotal = document.getElementById("peak-total");
-
-    const numberFormatter = new Intl.NumberFormat("ko-KR");
-    const peakRecord = [...accidentData].sort((a, b) => b.total - a.total || a.year - b.year)[0];
-
-    function populateYearSelect() {
-      accidentData.forEach((item) => {
-        const option = document.createElement("option");
-        option.value = String(item.year);
-        option.textContent = `${item.year}년`;
-        yearSelect.appendChild(option);
-      });
-      yearSelect.value = String(peakRecord.year);
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>'\"]/g, character => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '\"': "&quot;"
+      })[character]);
     }
 
-    function renderOverviewTable(selectedYearValue, highlightedYearValue) {
-      overviewBody.innerHTML = "";
-
-      accidentData.forEach((item) => {
-        const row = document.createElement("tr");
-        row.dataset.year = String(item.year);
-
-        if (String(item.year) === String(selectedYearValue)) {
-          row.classList.add("selected-row");
-        }
-
-        if (highlightedYearValue && String(item.year) === String(highlightedYearValue)) {
-          row.classList.add("match-row");
-        }
-
-        row.innerHTML = `
-          <td>${item.year}</td>
-          <td>${numberFormatter.format(item.total)}</td>
-          <td>${numberFormatter.format(item.collision)}</td>
-          <td>${numberFormatter.format(item.contact)}</td>
-          <td>${numberFormatter.format(item.grounding)}</td>
-          <td>${numberFormatter.format(item.capsize)}</td>
-          <td>${numberFormatter.format(item.fireExplosion)}</td>
-          <td>${numberFormatter.format(item.sinking)}</td>
-          <td>${numberFormatter.format(item.engineDamage)}</td>
-        `;
-
-        row.addEventListener("click", () => {
-          yearSelect.value = String(item.year);
-          yearSearch.value = String(item.year);
-          renderDashboard(item.year, item.year);
-          searchFeedback.innerHTML = `<strong>${item.year}년</strong> 행을 강조했습니다.`;
-        });
-
-        overviewBody.appendChild(row);
-      });
+    function renderFilters() {
+      filterButtons.innerHTML = categories.map(category => `
+        <button type="button" class="filter-btn ${category === selectedCategory ? "active" : ""}"
+          data-category="${escapeHtml(category)}" aria-pressed="${category === selectedCategory}">
+          ${escapeHtml(category)}
+        </button>
+      `).join("");
     }
 
-    function renderTypeTable(record) {
-      typeTableBody.innerHTML = "";
-      const typeValues = typeConfig.map((type) => ({ ...type, value: record[type.key] }));
-      const maxValue = Math.max(...typeValues.map((item) => item.value));
-
-      typeValues.forEach((type) => {
-        const ratio = maxValue === 0 ? 0 : (type.value / maxValue) * 100;
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <th scope="row">${type.label}</th>
-          <td>
-            <div class="bar-track" aria-hidden="true">
-              <div class="bar-fill" style="width:${ratio}%;"></div>
-            </div>
-          </td>
-          <td class="count-cell">${numberFormatter.format(type.value)}</td>
-        `;
-        typeTableBody.appendChild(row);
+    function renderCards() {
+      const keyword = searchInput.value.trim().toLocaleLowerCase("ko-KR");
+      const filtered = policyNotices.filter(item => {
+        const matchesCategory = selectedCategory === "전체" || item.분야 === selectedCategory;
+        const matchesKeyword = !keyword || `${item.제목} ${item.분야}`.toLocaleLowerCase("ko-KR").includes(keyword);
+        return matchesCategory && matchesKeyword;
       });
 
-      const dominant = [...typeValues].sort((a, b) => b.value - a.value)[0];
-      dominantType.textContent = dominant.label;
-      dominantCopy.textContent = `${record.year}년에는 ${dominant.label} 사고가 ${numberFormatter.format(dominant.value)}건으로 가장 많았습니다.`;
+      resultCount.innerHTML = `결과 <strong>${filtered.length}건</strong>`;
+      clearSearch.hidden = searchInput.value.length === 0;
 
-      const gap = record.engineDamage - record.collision;
-      comparisonValue.textContent = `${gap >= 0 ? "+" : ""}${numberFormatter.format(gap)}`;
-      comparisonCopy.textContent = `기관손상과 충돌의 차이는 ${numberFormatter.format(Math.abs(gap))}건이며, ${gap >= 0 ? "기관손상이 더 많습니다." : "충돌이 더 많습니다."}`;
-    }
-
-    function renderSummary(record) {
-      selectedTotal.textContent = numberFormatter.format(record.total);
-      selectedYearChip.textContent = `${record.year}년 데이터`;
-      selectedTotalBanner.textContent = `${numberFormatter.format(record.total)}건`;
-
-      const rankedTypes = typeConfig
-        .map((type) => ({ label: type.label, value: record[type.key] }))
-        .sort((a, b) => b.value - a.value);
-
-      selectedSummaryCopy.textContent =
-        `${record.year}년에는 총 ${numberFormatter.format(record.total)}건의 해양사고가 집계되었으며, `
-        + `${rankedTypes[0].label} ${numberFormatter.format(rankedTypes[0].value)}건과 `
-        + `${rankedTypes[1].label} ${numberFormatter.format(rankedTypes[1].value)}건이 상대적으로 높게 나타났습니다.`;
-    }
-
-    function renderDashboard(selectedYearValue, highlightedYearValue = "") {
-      const record = accidentData.find((item) => String(item.year) === String(selectedYearValue)) || peakRecord;
-      renderSummary(record);
-      renderTypeTable(record);
-      renderOverviewTable(record.year, highlightedYearValue);
-    }
-
-    function highlightSearchedYear() {
-      const rawYear = yearSearch.value.trim();
-
-      if (!/^\d{4}$/.test(rawYear)) {
-        searchFeedback.textContent = rawYear ? "연도는 네 자리 숫자로 입력해 주세요." : "연도를 입력하면 아래 표에서 해당 행이 강조됩니다.";
-        renderOverviewTable(yearSelect.value, "");
+      if (!filtered.length) {
+        cardGrid.innerHTML = `<div class="empty"><span class="empty-symbol">⌕</span><p>일치하는 공지사항이 없습니다.</p><small>검색어나 분야를 변경해 보세요.</small></div>`;
         return;
       }
 
-      const matched = accidentData.find((item) => String(item.year) === rawYear);
-      if (!matched) {
-        searchFeedback.textContent = `${rawYear}년 데이터는 범위 안에 없습니다.`;
-        renderOverviewTable(yearSelect.value, "");
-        return;
-      }
-
-      renderDashboard(yearSelect.value, rawYear);
-      searchFeedback.innerHTML = `<strong>${rawYear}년</strong> 행을 강조했습니다.`;
-
-      const matchedRow = overviewBody.querySelector(`[data-year="${rawYear}"]`);
-      if (matchedRow) {
-        matchedRow.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
-      }
+      cardGrid.innerHTML = filtered.map(item => `
+        <article class="card">
+          <span class="category">${escapeHtml(item.분야)}</span>
+          <h2>${escapeHtml(item.제목)}</h2>
+          <dl class="meta">
+            <dt>담당과</dt><dd>${escapeHtml(item.담당과)}</dd>
+            <dt>연락처</dt><dd><a href="tel:${escapeHtml(item.연락처)}">${escapeHtml(item.연락처)}</a></dd>
+          </dl>
+        </article>
+      `).join("");
     }
 
-    function renderReferenceInsights() {
-      periodRange.textContent = `${accidentData[0].year}-${accidentData[accidentData.length - 1].year}`;
-      peakYear.textContent = `${peakRecord.year}년`;
-      peakTotal.textContent = `${numberFormatter.format(peakRecord.total)}건`;
-    }
-
-    yearSelect.addEventListener("change", (event) => {
-      renderDashboard(event.target.value, yearSearch.value.trim());
+    filterButtons.addEventListener("click", event => {
+      const button = event.target.closest("button[data-category]");
+      if (!button) return;
+      selectedCategory = button.dataset.category;
+      renderFilters();
+      renderCards();
     });
 
-    searchButton.addEventListener("click", highlightSearchedYear);
-
-    yearSearch.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        highlightSearchedYear();
-      }
+    searchInput.addEventListener("input", renderCards);
+    clearSearch.addEventListener("click", () => {
+      searchInput.value = "";
+      searchInput.focus();
+      renderCards();
     });
 
-    yearSearch.addEventListener("input", () => {
-      if (yearSearch.value.trim() === "") {
-        searchFeedback.textContent = "연도를 입력하면 아래 표에서 해당 행이 강조됩니다.";
-        renderOverviewTable(yearSelect.value, "");
-      }
-    });
-
-    populateYearSelect();
-    renderReferenceInsights();
-    renderDashboard(peakRecord.year);
-    searchFeedback.textContent = "연도를 입력하면 아래 표에서 해당 행이 강조됩니다.";
+    renderFilters();
+    renderCards();
   </script>
 </body>
 </html>
